@@ -1,12 +1,31 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Mensaje from "./Mensaje";
 import CerrarBtn from "../img/cerrar.svg";
 
-const Modal = ({ setModal, animarModal, setAnimarModal, guardarGasto }) => {
+const Modal = ({
+  setModal,
+  animarModal,
+  setAnimarModal,
+  guardarGasto,
+  gastoEditar,
+}) => {
   const [mensaje, setMensaje] = useState("");
   const [nombre, setNombre] = useState("");
   const [cantidad, setCantidad] = useState(0);
   const [categoria, setCategoria] = useState("");
+  const [fecha, setFecha] = useState("");
+  const [id, setID] = useState("");
+
+  useEffect(() => {
+    if (Object.keys(gastoEditar).length > 0) {
+      const { nombre, cantidad, categoria, id, fecha } = gastoEditar;
+      setNombre(nombre);
+      setCantidad(cantidad);
+      setCategoria(categoria);
+      setID(id);
+      setFecha(fecha);
+    }
+  }, []);
 
   const ocultarModal = () => {
     setAnimarModal(false);
@@ -21,10 +40,10 @@ const Modal = ({ setModal, animarModal, setAnimarModal, guardarGasto }) => {
     if ([nombre, cantidad, categoria].includes("")) {
       setMensaje("Todos los campos son obligatorios");
       setTimeout(() => {
-        setMensaje("")
-      },1500);
+        setMensaje("");
+      }, 1500);
     }
-    guardarGasto({nombre, cantidad, categoria});
+    guardarGasto({ nombre, cantidad, categoria, id, fecha });
   };
 
   return (
@@ -36,7 +55,7 @@ const Modal = ({ setModal, animarModal, setAnimarModal, guardarGasto }) => {
         onSubmit={handleSubmit}
         className={`formulario ${animarModal ? "animar" : "cerrar"}`}
       >
-        <legend>Nuevo gasto</legend>
+        <legend>{gastoEditar.nombre ? "Editar Gasto" : "Nuevo Gasto"}</legend>
         {mensaje && <Mensaje tipo="error">{mensaje}</Mensaje>}
         <div className="campo">
           <label htmlFor="nombre">Nombre gasto</label>
@@ -53,7 +72,7 @@ const Modal = ({ setModal, animarModal, setAnimarModal, guardarGasto }) => {
             type="number"
             placeholder="Añade cantidad del gasto ej.300"
             value={cantidad}
-            onChange={(e) => setCantidad(e.target.value)}
+            onChange={(e) => setCantidad(Number(e.target.value))}
           />
         </div>
         <div className="campo">
@@ -74,7 +93,10 @@ const Modal = ({ setModal, animarModal, setAnimarModal, guardarGasto }) => {
           </select>
         </div>
 
-        <input type="submit" value="Añadir gasto" />
+        <input
+          type="submit"
+          value={gastoEditar.nombre ? "Guardar Cambios" : "Nuevo Gasto"}
+        />
       </form>
     </div>
   );
